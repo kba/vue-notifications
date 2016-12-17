@@ -10,8 +10,16 @@ const TYPE = {
 }
 
 const VUE_VERSION = {
-  evangelion: 1,
-  ghostInTheShell: 2
+  1: {
+    init: 'init',
+    destroy: 'beforeDestroy',
+    mounted: 'compiled'
+  },
+  2: {
+    init: 'beforeCreate',
+    destroy: 'beforeDestroy',
+    mounted: 'mounted'
+  },
 }
 
 const MESSAGES = {
@@ -19,150 +27,149 @@ const MESSAGES = {
   methodNameConflict: `${PLUGIN_NAME}: names conflict - `
 }
 
-const innerMethods = {
-  getVersion (Vue) {
-    const version = Vue.version.match(/(\d+)/g)
-    return {
-      major: +version[0],
-      regular: +version[1],
-      minor: +version[2]
-    }
-  },
-  showInConsole (msg, type, types) {
-    if (type === types.error) console.error(msg)
-    else if (type === types.warn) console.warn(msg)
-    else if (type === types.success) console.info(msg)
-    else console.log(msg)
-  },
-  showDefaultMessage ({ type, message, title, debugMsg }) {
-    let msg = `Title: ${title}, Message: ${message}, DebugMsg: ${debugMsg}, type: ${type}`
-
-    innerMethods.showInConsole(msg, type, TYPE)
-
-    return msg
-  },
-  getValues (vueApp, config) {
-    const result = {}
-    const keepFnFields = ['cb', 'watch']
-
-    Object.keys(config).forEach(field => {
-      keepFnFields.forEach(fnField => {
-        if (field === fnField) {
-          result[field] = config[field].bind(vueApp)
-        } else {
-          result[field] = (typeof config[field] === 'function') ? config[field].call(vueApp) : config[field]
-        }
-      })
-    })
-
-    return result
-  },
-  showMessage (config, options, vueApp) {
-    const valuesObj = innerMethods.getValues(vueApp, config)
-
-    const isMethodOverridden = options && options[valuesObj.type]
-    const method = isMethodOverridden ? options[valuesObj.type] : innerMethods.showDefaultMessage
-    method(valuesObj, vueApp)
-
-    if (config.cb) return config.cb()
-  },
-  addMethods (targetObj, typesObj, options) {
-    Object.keys(typesObj).forEach(v => {
-      targetObj[typesObj[v]] = function (config) {
-        config.type = typesObj[v]
-        // TODO (S.Panfilov)fix 'vueApp' in param
-        return innerMethods.showMessage(config, options)
-      }
-    })
-  },
-  setMethod (vueApp, name, options, pluginOptions) {
-    if (!options.methods) options.methods = {}
-
-    if (options.methods[name]) {
-      // TODO (S.Panfilov) not sure - throw error here or just warn
-      console.error(MESSAGES.methodNameConflict + name)
-    } else {
-      options.methods[name] = innerMethods.makeMethod(vueApp, name, options, pluginOptions)
-    }
-  },
-  makeMethod (vueApp, configName, options, pluginOptions) {
-    return function (config) {
-      const newConfig = {}
-      Object.assign(newConfig, VueNotifications.config)
-      Object.assign(newConfig, options[VueNotifications.propertyName][configName])
-      Object.assign(newConfig, config)
-
-      return innerMethods.showMessage(newConfig, pluginOptions, vueApp)
-    }
-  },
-  initVueNotificationPlugin (vueApp, notifications, pluginOptions) {
-    if (!notifications) return
-    Object.keys(notifications).forEach(name => {
-      innerMethods.setMethod(vueApp, name, vueApp.$options, pluginOptions)
-    })
-
-    vueApp.$emit(`${PACKAGE_NAME}-initiated`)
-  },
-  launchWatchableNotifications (vueApp, notifications) {
-    if (!notifications) return
-    Object.keys(notifications).forEach(name => {
-      if (vueApp[name] && notifications[name].watch) {
-        vueApp[name]()
-      }
-    })
-
-    vueApp.$emit(`${PACKAGE_NAME}-launched_watchable`)
-  },
-  unlinkVueNotificationPlugin (vueApp, notifications) {
-    if (!notifications) return
-    const attachedMethods = vueApp.$options.methods
-    Object.keys(notifications).forEach(name => {
-      if (attachedMethods[name]) {
-        attachedMethods[name] = undefined
-        delete attachedMethods[name]
-      }
-    })
-
-    vueApp.$emit(`${PACKAGE_NAME}-unlinked`)
+function getVersion (Vue) {
+  const version = Vue.version.match(/(\d+)/g)
+  return {
+    major: +version[0],
+    regular: +version[1],
+    minor: +version[2]
   }
 }
 
-function makeMixin (Vue, pluginOptions) {
-  let hooks = {
-    init: '',
-    destroy: 'beforeDestroy',
-    mounted: ''
-  }
+function showInConsole (msg, type, types) {
+  if (type === types.error) console.error(msg)
+  else if (type === types.warn) console.warn(msg)
+  else if (type === types.success) console.info(msg)
+  else console.log(msg)
+}
 
-  if (innerMethods.getVersion(Vue).major === VUE_VERSION.evangelion) {
-    hooks.init = 'init'
-    hooks.mounted = 'compiled'
+function showDefaultMessage ({ type, message, title, debugMsg }) {
+  let msg = `Title: ${title}, Message: ${message}, DebugMsg: ${debugMsg}, type: ${type}`
+
+  showInConsole(msg, type, TYPE)
+
+  return msg
+}
+
+function getValues (vueApp, config) {
+  const result = {}
+  const keepFnFields = ['cb', 'watch']
+
+  Object.keys(config).forEach(field => {
+    keepFnFields.forEach(fnField => {
+      if (field === fnField) {
+        result[field] = config[field].bind(vueApp)
+      } else {
+        result[field] = (typeof config[field] === 'function') ? config[field].call(vueApp) : config[field]
+      }
+    })
+  })
+
+  return result
+}
+
+function showMessage (config, options, vueApp) {
+  const valuesObj = getValues(vueApp, config)
+
+  const isMethodOverridden = options && options[valuesObj.type]
+  const method = isMethodOverridden ? options[valuesObj.type] : showDefaultMessage
+  method(valuesObj, vueApp)
+
+  if (config.cb) return config.cb()
+}
+
+function addMethods (targetObj, typesObj, options) {
+  Object.keys(typesObj).forEach(v => {
+    targetObj[typesObj[v]] = function (config) {
+      config.type = typesObj[v]
+      // TODO (S.Panfilov)fix 'vueApp' in param
+      return showMessage(config, options)
+    }
+  })
+}
+
+function setMethod (vueApp, name, options, pluginOptions) {
+  if (!options.methods) options.methods = {}
+
+  if (options.methods[name]) {
+    // TODO (S.Panfilov) not sure - throw error here or just warn
+    console.error(MESSAGES.methodNameConflict + name)
+  } else {
+    options.methods[name] = makeMethod(vueApp, name, options, pluginOptions)
   }
-  if (innerMethods.getVersion(Vue).major === VUE_VERSION.ghostInTheShell) {
-    hooks.init = 'beforeCreate'
-    hooks.mounted = 'mounted'
+}
+
+function makeMethod (vueApp, configName, options, pluginOptions) {
+  return function (config) {
+    const newConfig = {}
+    Object.assign(newConfig, VueNotifications.config)
+    Object.assign(newConfig, options[VueNotifications.propertyName][configName])
+    Object.assign(newConfig, config)
+
+    return showMessage(newConfig, pluginOptions, vueApp)
   }
+}
+
+function initVueNotificationPlugin (vueApp, notifications, pluginOptions) {
+  if (!notifications) return
+  Object.keys(notifications).forEach(name => {
+    setMethod(vueApp, name, vueApp.$options, pluginOptions)
+  })
+
+  vueApp.$emit(`${PACKAGE_NAME}-initiated`)
+}
+
+function launchWatchableNotifications (vueApp, notifications) {
+  if (!notifications) return
+  Object.keys(notifications).forEach(name => {
+    if (vueApp[name] && notifications[name].watch) {
+      vueApp[name]()
+    }
+  })
+
+  vueApp.$emit(`${PACKAGE_NAME}-launched_watchable`)
+}
+
+function unlinkVueNotificationPlugin (vueApp, notifications) {
+  if (!notifications) return
+  const attachedMethods = vueApp.$options.methods
+  Object.keys(notifications).forEach(name => {
+    if (attachedMethods[name]) {
+      attachedMethods[name] = undefined
+      delete attachedMethods[name]
+    }
+  })
+
+  vueApp.$emit(`${PACKAGE_NAME}-unlinked`)
+}
+
+
+function makeMixin (Vue, pluginOptions) {
+  const version = getVersion(Vue).major
+
+  // TODO (S.Panfilov) this?
+  // TODO (S.Panfilov) : function () { ?
 
   return {
-    [hooks.init]: function () {
+    [VUE_VERSION[version].init]: function () {
       const vueApp = this
       const vueAppOptions = this.$options
       const notificationsField = vueAppOptions[VueNotifications.propertyName]
 
-      innerMethods.initVueNotificationPlugin(vueApp, notificationsField, pluginOptions)
+      initVueNotificationPlugin(vueApp, notificationsField, pluginOptions)
     },
-    [hooks.mounted]: function () {
+    [VUE_VERSION[version].mounted]: function () {
       const vueApp = this
       const vueAppOptions = this.$options
       const notificationsField = vueAppOptions[VueNotifications.propertyName]
 
-      innerMethods.launchWatchableNotifications(vueApp, notificationsField)
+      launchWatchableNotifications(vueApp, notificationsField)
     },
-    [hooks.destroy]: function () {
+    [VUE_VERSION[version].destroy]: function () {
       const vueApp = this
       const vueAppOptions = this.$options
       const notificationsField = vueAppOptions[VueNotifications.propertyName]
-      innerMethods.unlinkVueNotificationPlugin(vueApp, notificationsField)
+      unlinkVueNotificationPlugin(vueApp, notificationsField)
     }
   }
 }
@@ -180,7 +187,7 @@ const VueNotifications = {
     const mixin = makeMixin(Vue, pluginOptions)
     Vue.mixin(mixin)
 
-    innerMethods.addMethods(this, this.type, pluginOptions)
+    addMethods(this, this.type, pluginOptions)
 
     this.installed = true
   }
@@ -192,13 +199,12 @@ if (typeof window !== 'undefined' && window.Vue) {
 }
 
 /*START.TESTS_ONLY*/
-VueNotifications._private = innerMethods
-VueNotifications._private.TYPE = TYPE
-VueNotifications._private.PLUGIN_NAME = PLUGIN_NAME
-VueNotifications._private.PACKAGE_NAME = PACKAGE_NAME
-VueNotifications._private.PROPERTY_NAME = PROPERTY_NAME
-VueNotifications._private.VUE_VERSION = VUE_VERSION
-VueNotifications._private.MESSAGES = MESSAGES
+// VueNotifications._private.TYPE = TYPE
+// VueNotifications._private.PLUGIN_NAME = PLUGIN_NAME
+// VueNotifications._private.PACKAGE_NAME = PACKAGE_NAME
+// VueNotifications._private.PROPERTY_NAME = PROPERTY_NAME
+// VueNotifications._private.VUE_VERSION = VUE_VERSION
+// VueNotifications._private.MESSAGES = MESSAGES
 
 export default VueNotifications
 
