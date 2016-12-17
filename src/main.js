@@ -1,5 +1,5 @@
 const PLUGIN_NAME = 'VueNotifications'
-const PACKAGE_NAME = 'vue-notifications'
+// const PACKAGE_NAME = 'vue-notifications'
 const PROPERTY_NAME = '$n'
 
 const TYPE = {
@@ -9,30 +9,30 @@ const TYPE = {
   success: 'success'
 }
 
-const VUE_VERSION = {
-  1: {
-    init: 'init',
-    destroy: 'beforeDestroy'
-  },
-  2: {
-    init: 'beforeCreate',
-    destroy: 'beforeDestroy'
-  },
-}
+// const VUE_VERSION = {
+//   1: {
+//     init: 'init',
+//     destroy: 'beforeDestroy'
+//   },
+//   2: {
+//     init: 'beforeCreate',
+//     destroy: 'beforeDestroy'
+//   },
+// }
 
 const MESSAGES = {
   alreadyInstalled: `${PLUGIN_NAME}: plugin already installed`,
   methodNameConflict: `${PLUGIN_NAME}: names conflict - `
 }
 
-function getVersion (Vue) {
-  const version = Vue.version.match(/(\d+)/g)
-  return {
-    major: +version[0],
-    regular: +version[1],
-    minor: +version[2]
-  }
-}
+// function getVersion (Vue) {
+//   const version = Vue.version.match(/(\d+)/g)
+//   return {
+//     major: +version[0],
+//     regular: +version[1],
+//     minor: +version[2]
+//   }
+// }
 
 function showInConsole (msg, type, types) {
   if (type === types.error) console.error(msg)
@@ -90,27 +90,27 @@ function showMessage (config, options, vueApp) {
 //   })
 // }
 
-function setMethod (vueApp, name, options, pluginOptions) {
-  if (!options.methods) options.methods = {}
+// function setMethod (vueApp, name, options, pluginOptions) {
+//   if (!options.methods) options.methods = {}
+//
+//   if (options.methods[name]) {
+//     // TODO (S.Panfilov) not sure - throw error here or just warn
+//     console.error(MESSAGES.methodNameConflict + name)
+//   } else {
+//     options.methods[name] = makeMethod(vueApp, name, options, pluginOptions)
+//   }
+// }
 
-  if (options.methods[name]) {
-    // TODO (S.Panfilov) not sure - throw error here or just warn
-    console.error(MESSAGES.methodNameConflict + name)
-  } else {
-    options.methods[name] = makeMethod(vueApp, name, options, pluginOptions)
-  }
-}
-
-function makeMethod (vueApp, configName, options, pluginOptions) {
-  return function (config) {
-    const newConfig = {}
-    Object.assign(newConfig, VueNotifications.config)
-    Object.assign(newConfig, options[VueNotifications.propertyName][configName])
-    Object.assign(newConfig, config)
-
-    return showMessage(newConfig, pluginOptions, vueApp)
-  }
-}
+// function makeMethod (vueApp, configName, options, pluginOptions) {
+//   return function (config) {
+//     const newConfig = {}
+//     Object.assign(newConfig, VueNotifications.config)
+//     Object.assign(newConfig, options[VueNotifications.propertyName][configName])
+//     Object.assign(newConfig, config)
+//
+//     return showMessage(newConfig, pluginOptions, vueApp)
+//   }
+// }
 
 // function initVueNotificationPlugin (vueApp, notifications, pluginOptions) {
 //   if (!notifications) return
