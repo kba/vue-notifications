@@ -21,8 +21,8 @@ const TYPE = {
 // }
 
 const MESSAGES = {
-  alreadyInstalled: `${PLUGIN_NAME}: plugin already installed`,
-  methodNameConflict: `${PLUGIN_NAME}: names conflict - `
+  alreadyInstalled: `${PLUGIN_NAME}: plugin already installed`// ,
+  // methodNameConflict: `${PLUGIN_NAME}: names conflict - `
 }
 
 // function getVersion (Vue) {
@@ -51,66 +51,27 @@ function showDefaultMessage ({ type, message, title, debugMsg }) {
 
 function getValues (vueApp, config) {
   const result = {}
-  const keepFnFields = ['cb'] // TODO (S.Panfilov) any field can be a fn now!
 
   // TODO (S.Panfilov) if {} we have to build object that extend properties from parents
   // TODO (S.Panfilov) if func - pass function
   // TODO (S.Panfilov) if string - pass {msg: 'string'} and etend from upper properties
 
   Object.keys(config).forEach(field => {
-    keepFnFields.forEach(fnField => {
-      if (field === fnField) {
-        result[field] = config[field].bind(vueApp)
-      } else {
-        result[field] = (typeof config[field] === 'function') ? config[field].call(vueApp) : config[field]
-      }
-    })
+    result[field] = (typeof config[field] === 'function') ? config[field].call(vueApp) : config[field]
   })
 
   return result
 }
 
-function showMessage (config, options, vueApp) {
-  const valuesObj = getValues(vueApp, config)
+function showMessage (config, options) {
+  return new Promise((resolve, reject) => {
+    const valuesObj = getValues(vueApp, config)
+    const isMethodOverridden = options && options[valuesObj.type]
+    const method = isMethodOverridden ? options[valuesObj.type] : showDefaultMessage
 
-  const isMethodOverridden = options && options[valuesObj.type]
-  const method = isMethodOverridden ? options[valuesObj.type] : showDefaultMessage
-  method(valuesObj, vueApp)
-
-  if (config.cb) return config.cb()
+    return resolve(method(valuesObj))
+  })
 }
-
-// function addMethods (targetObj, typesObj, options) {
-//   Object.keys(typesObj).forEach(v => {
-//     targetObj[typesObj[v]] = function (config) {
-//       config.type = typesObj[v]
-//       // TODO (S.Panfilov)fix 'vueApp' in param
-//       return showMessage(config, options)
-//     }
-//   })
-// }
-
-// function setMethod (vueApp, name, options, pluginOptions) {
-//   if (!options.methods) options.methods = {}
-//
-//   if (options.methods[name]) {
-//     // TODO (S.Panfilov) not sure - throw error here or just warn
-//     console.error(MESSAGES.methodNameConflict + name)
-//   } else {
-//     options.methods[name] = makeMethod(vueApp, name, options, pluginOptions)
-//   }
-// }
-
-// function makeMethod (vueApp, configName, options, pluginOptions) {
-//   return function (config) {
-//     const newConfig = {}
-//     Object.assign(newConfig, VueNotifications.config)
-//     Object.assign(newConfig, options[VueNotifications.propertyName][configName])
-//     Object.assign(newConfig, config)
-//
-//     return showMessage(newConfig, pluginOptions, vueApp)
-//   }
-// }
 
 // function initVueNotificationPlugin (vueApp, notifications, pluginOptions) {
 //   if (!notifications) return
@@ -168,21 +129,34 @@ const VueNotifications = {
   installed: false,
   show (config) {
     // TODO (S.Panfilov) config has to be an Object
+    // TODO (S.Panfilov) add Promise for async reasons
     //example 1: this.$n.show(this.$n.login.success)
     //example 2: this.$n.show(this.$n.error.login)
     //example 3: this.$n.show({msg: 'asdasd'})
+
+    return new Promise((resolve, reject) => {
+      const newConfig = {}
+      Object.assign(newConfig, this.config) // TODO (S.Panfilov) make sure that "this === VueNotifications"
+      Object.assign(newConfig, config)
+
+      return showMessage(newConfig, this.options).then(() => {
+        resolve()
+      })
+    })
   },
   dismiss () {
     // TODO (S.Panfilov) required for timeout 0
   },
   install (Vue, pluginOptions = {}) {
     if (this.installed) throw console.error(MESSAGES.alreadyInstalled)
-    // const mixin = makeMixin(Vue, pluginOptions)
-    // Vue.mixin(mixin)
 
-    // addMethods(this, this.type, pluginOptions)
+    // TODO (S.Panfilov)check if it's necessary
+    this.// const mixin = makeMixin(Vue, pluginOptions)
+      // Vue.mixin(mixin)
 
-    this.installed = true
+      // addMethods(this, this.type, pluginOptions)
+
+      this.installed = true
   }
 
 }
