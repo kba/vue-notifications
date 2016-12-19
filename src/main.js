@@ -104,10 +104,12 @@ const VueNotifications = {
     if (this.installed) throw console.error(MESSAGES.alreadyInstalled)
 
     // TODO (S.Panfilov)check if it's necessary
-    this.// const mixin = makeMixin(Vue, pluginOptions)
+    //this.// const mixin = makeMixin(Vue, pluginOptions)
       // Vue.mixin(mixin)
 
       // addMethods(this, this.type, pluginOptions)
+
+
 
       this.installed = true
   }

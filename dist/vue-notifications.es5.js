@@ -10,7 +10,6 @@
 'use strict';
 
 var PLUGIN_NAME = 'VueNotifications';
-// const PACKAGE_NAME = 'vue-notifications'
 var PROPERTY_NAME = '$n';
 
 var TYPE = {
@@ -20,30 +19,9 @@ var TYPE = {
   success: 'success'
 };
 
-// const VUE_VERSION = {
-//   1: {
-//     init: 'init',
-//     destroy: 'beforeDestroy'
-//   },
-//   2: {
-//     init: 'beforeCreate',
-//     destroy: 'beforeDestroy'
-//   },
-// }
-
 var MESSAGES = {
-  alreadyInstalled: PLUGIN_NAME + ': plugin already installed' // ,
-  // methodNameConflict: `${PLUGIN_NAME}: names conflict - `
+  alreadyInstalled: PLUGIN_NAME + ': plugin already installed'
 };
-
-// function getVersion (Vue) {
-//   const version = Vue.version.match(/(\d+)/g)
-//   return {
-//     major: +version[0],
-//     regular: +version[1],
-//     minor: +version[2]
-//   }
-// }
 
 function showInConsole(msg, type, types) {
   if (type === types.error) console.error(msg);else if (type === types.warn) console.warn(msg);else if (type === types.success) console.info(msg);else console.log(msg);
@@ -56,7 +34,6 @@ function showDefaultMessage(_ref) {
       debugMsg = _ref.debugMsg;
 
   var msg = 'Title: ' + title + ', Message: ' + message + ', DebugMsg: ' + debugMsg + ', type: ' + type;
-
   showInConsole(msg, type, TYPE);
 
   return msg;
@@ -108,30 +85,6 @@ function showMessage(config, options) {
 //   vueApp.$emit(`${PACKAGE_NAME}-unlinked`)
 // }
 
-
-// function makeMixin (Vue, pluginOptions) {
-//   const version = getVersion(Vue).major
-//
-//   // TODO (S.Panfilov) this?
-//   // TODO (S.Panfilov) : function () { ?
-//
-//   return {
-//     [VUE_VERSION[version].init]: function () {
-//       const vueApp = this
-//       const vueAppOptions = this.$options
-//       const notificationsField = vueAppOptions[VueNotifications.propertyName]
-//
-//       initVueNotificationPlugin(vueApp, notificationsField, pluginOptions)
-//     },
-//     [VUE_VERSION[version].destroy]: function () {
-//       const vueApp = this
-//       const vueAppOptions = this.$options
-//       const notificationsField = vueAppOptions[VueNotifications.propertyName]
-//       unlinkVueNotificationPlugin(vueApp, notificationsField)
-//     }
-//   }
-// }
-
 var VueNotifications = {
   type: TYPE,
   propertyName: PROPERTY_NAME,
@@ -154,8 +107,8 @@ var VueNotifications = {
       Object.assign(newConfig, _this.config); // TODO (S.Panfilov) make sure that "this === VueNotifications"
       Object.assign(newConfig, config);
 
-      return showMessage(newConfig, _this.options).then(function () {
-        resolve();
+      return showMessage(newConfig, _this.options).then(function (resp) {
+        resolve(resp);
       });
     });
   },
@@ -168,7 +121,13 @@ var VueNotifications = {
     if (this.installed) throw console.error(MESSAGES.alreadyInstalled);
 
     // TODO (S.Panfilov)check if it's necessary
-    this['this'].installed = true;
+    //this.// const mixin = makeMixin(Vue, pluginOptions)
+    // Vue.mixin(mixin)
+
+    // addMethods(this, this.type, pluginOptions)
+
+
+    this.installed = true;
   }
 };
 
