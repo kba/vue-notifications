@@ -29,7 +29,8 @@
       }
     },
     mounted () {
-      this.successMsg()
+      console.info(this)
+      this.$n.show(this.$n.login.success)
     },
     method: {
       login () {
@@ -43,45 +44,45 @@
         }
       }
     },
-    notifications: {
-      successMsg: {
-        type: 'success',
-        message: 'some'
-      }
-    }// ,
-//    $n: {
-//      login: {
-//        timeout: 800,
-//        title: 'Login: ',
-//        success: {
-//          type: 'success',
-//          title: `${this.title} success`,
-//          successOne: { msg: 'This is success', timeout: 300 },
-//          successTwo: 'This is success',
-//          successTree () {
-//            return { msg: 'my msg', timeout: 400 }
-//          }
-//        },
-//        error: {
-//          type: 'error',
-//          title: `${this.title} error`,
-//          successOne: { msg: 'This is error' },
-//          successTwo: 'This is error'
-//        }
-//      },
-//      error: {
-//        type: 'error',
-//        timeout: 300,
-//        login: {
-//          msg: 'This is error',
-//          title: 'error'
-//        },
-//        register: 'Some register error',
-//        serverError () {
-//          return 'Some register error'
-//        }
+//    notifications: {
+//      successMsg: {
+//        type: 'success',
+//        message: 'some'
 //      }
-//    }
+//    }// ,
+    $n: {
+      login: {
+        timeout: 800,
+        title: 'Login: ',
+        success: {
+          type: 'success',
+//          title: `${this.title} success`,
+          successOne: { msg: 'This is success', timeout: 300 },
+          successTwo: 'This is success',
+          successTree () {
+            return { msg: 'my msg', timeout: 400 }
+          }
+        },
+        error: {
+          type: 'error',
+//          title: `${this.title} error`,
+          successOne: { msg: 'This is error' },
+          successTwo: 'This is error'
+        }
+      },
+      error: {
+        type: 'error',
+        timeout: 300,
+        login: {
+          msg: 'This is error',
+          title: 'error'
+        },
+        register: 'Some register error',
+        serverError () {
+          return 'Some register error'
+        }
+      }
+    }
   }
 </script>
 
