@@ -9,6 +9,7 @@ import VueNotifications from 'vue-notifications'
 //   return miniToastr[type](message, title, timeout, cb)
 // }
 
+// TODO (S.Panfilov) experiments
 const options = {
   // success: toast,
   // error: toast,
