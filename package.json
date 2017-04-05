@@ -13,6 +13,7 @@
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
   },
   "dependencies": {
+    "mini-toastr": "^0.6.5",
     "vue": "^2.1.0",
     "vue-notifications": "^0.7.6"
   },
