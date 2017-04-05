@@ -1,5 +1,6 @@
 const PLUGIN_NAME = 'VueNotifications'
-const PROPERTY_NAME = '$n'
+// const PROPERTY_NAME = '$n'
+const PROPERTY_NAME = 'notifications'
 
 const TYPE = {
   error: 'error',
@@ -19,7 +20,7 @@ function showInConsole (msg, type, types) {
   else console.log(msg)
 }
 
-function showDefaultMessage ({ type, message, title, debugMsg }) {
+function showDefaultMessage ({type, message, title, debugMsg}) {
   let msg = `Title: ${title}, Message: ${message}, DebugMsg: ${debugMsg}, type: ${type}`
   showInConsole(msg, type, TYPE)
 
@@ -31,7 +32,7 @@ function getValues (vueApp, config) {
 
   // TODO (S.Panfilov) if {} we have to build object that extend properties from parents
   // TODO (S.Panfilov) if func - pass function
-  // TODO (S.Panfilov) if string - pass {msg: 'string'} and etend from upper properties
+  // TODO (S.Panfilov) if string - pass {msg: 'string'} and extend from upper properties
 
   Object.keys(config).forEach(field => {
     result[field] = (typeof config[field] === 'function') ? config[field].call(vueApp) : config[field]
@@ -101,17 +102,35 @@ const VueNotifications = {
     // TODO (S.Panfilov) required for timeout 0
   },
   install (Vue, pluginOptions = {}) {
+    // console.info(this)
     if (this.installed) throw console.error(MESSAGES.alreadyInstalled)
 
-    // TODO (S.Panfilov)check if it's necessary
+    // TODO (S.Panfilov) check if it's necessary
     //this.// const mixin = makeMixin(Vue, pluginOptions)
-      // Vue.mixin(mixin)
+    // Vue.mixin(mixin)
 
-      // addMethods(this, this.type, pluginOptions)
+    // addMethods(this, this.type, pluginOptions)
+
+    const mixin = {
+      beforeCreated () {
+        console.info(this.notifications)
+      },
+      created () {
+        console.info(this.notifications)
+      },
+      beforeMount (){
+        console.info(this.notifications)
+      },
+      mounted (){
+        console.info(this.notifications)
+      }
+    }
+    Vue.mixin(mixin)
+
+    // TODO (S.Panfilov) perhaps add global method show instead of this.show(), like Vue.show = ...
 
 
-
-      this.installed = true
+    this.installed = true
   }
 
 }
