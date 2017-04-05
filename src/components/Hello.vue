@@ -1,22 +1,6 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://gitter.im/vuejs/vue" target="_blank">Gitter Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
-      <br>
-      <li><a href="http://vuejs-templates.github.io/webpack/" target="_blank">Docs for This Template</a></li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-      <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-      <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-    </ul>
+  <div>
+    <button type="button" v-on:click="showSuccess()">Success</button>
   </div>
 </template>
 
@@ -24,33 +8,43 @@
   export default {
     name: 'hello',
     data () {
-      return {
-        msg: 'Welcome to Your Vue.js App'
-      }
+      return {}
+    },
+    beforeCreate () {
+//      console.info(this)
     },
     mounted () {
-      console.info(this)
-      this.$n.show(this.$n.login.success)
+//      console.info(this)
+//      console.info(this.$n)
+//      this.$n.show(this.$n.login.success)
     },
-    method: {
-      login () {
-        let a = 1
-        let b = 0
-        if (a > b) {
-          this.$n.login.success()
-//          this.$n(this.login.success)
-          this.$n.show(this.$n.login.success)
-          this.$n.show(this.$n.error.login)
-        }
-      }
+    methods: {
+      showSuccess () {
+        console.info(this)
+        console.info(this.data)
+        console.info(this.$n)
+        // this.$n.show(this.$n.login.success)
+      }// ,
+//      login () {
+//        let a = 1
+//        let b = 0
+//        if (a > b) {
+//          this.$n.login.success()
+// //          this.$n(this.login.success)
+//          this.$n.show(this.$n.login.success)
+//          this.$n.show(this.$n.error.login)
+//          this.toast(this.error.login)
+//        }
+//      }
     },
 //    notifications: {
 //      successMsg: {
 //        type: 'success',
 //        message: 'some'
 //      }
-//    }// ,
-    $n: {
+//    },
+//    $n: {
+    notifications: {
       login: {
         timeout: 800,
         title: 'Login: ',
